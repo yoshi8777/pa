@@ -1,0 +1,323 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn import tree
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+%matplotlib inline
+satisfaction_level last_evaluation number_project average_montly_hours time_spend
+0 0.38 0.53 2 157
+1 0.80 0.86 5 262
+2 0.11 0.88 7 272
+3 0.72 0.87 5 223
+4 0.37 0.52 2 159
+df=pd.read_csv('HR_comma_sep (1) - Copy.csv')
+df.head()
+left=df[df.left==1]
+left.shape
+(3571, 10)
+<ipython-input-4-b0959f325c8f>:1: FutureWarning: The default value of numeric_only
+ df.groupby('left').mean()
+satisfaction_level last_evaluation number_project average_montly_hours t
+left
+0 0.666810 0.715473 3.786664 199.060203
+1 0.440098 0.718113 3.855503 207.419210
+df.groupby('left').mean()
+<Axes: xlabel='salary'>
+pd.crosstab(df.salary,df.left).plot(kind='bar')
+<Axes: xlabel='Department'>
+pd.crosstab(df.Department,df.left).plot(kind='bar')
+df.columns
+Index(['satisfaction_level', 'last_evaluation', 'number_project',
+ 'average_montly_hours', 'time_spend_company', 'Work_accident', 'left',
+ 'promotion_last_5years', 'Department', 'salary'],
+ dtype='object')
+satisfaction_level average_montly_hours promotion_last_5years salary
+0 0.38 157 0 low
+1 0.80 262 0 medium
+2 0.11 272 0 medium
+3 0.72 223 0 low
+4 0.37 159 0 low
+subsdf=df[['satisfaction_level','average_montly_hours','promotion_last_5years','salary']]
+subsdf.head()
+salary_dummies=pd.get_dummies(subsdf.salary,prefix='salary')
+satisfaction_level average_montly_hours promotion_last_5years salary_high s
+0 0.38 157 0 0
+1 0.80 262 0 0
+2 0.11 272 0 0
+3 0.72 223 0 0
+4 0.37 159 0 0
+df_with_dummies=pd.concat([subsdf,salary_dummies],axis='columns')
+df_with_dummies.drop('salary',axis='columns',inplace=True)
+df_with_dummies.head()
+X=df_with_dummies
+X
+satisfaction_level average_montly_hours promotion_last_5years salary_hig
+0 0.38 157 0
+1 0.80 262 0
+2 0.11 272 0
+3 0.72 223 0
+4 0.37 159 0
+... ... ... ...
+14994 0.40 151 0
+14995 0.37 160 0
+14996 0.37 143 0
+14997 0.11 280 0
+14998 0.37 158 0
+14999 rows × 6 columns y=df.left
+y
+0 1
+1 1
+2 1
+3 1
+4 1
+ ..
+14994 1
+14995 1
+14996 1
+14997 1
+14998 1
+Name: left, Length: 14999, dtype: int64
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,train_size=0.3)
+from sklearn.linear_model import LogisticRegression
+model=LogisticRegression()
+▾ LogisticRegression
+LogisticRegression()
+model.fit(X_train,y_train)
+model.score(X_test,y_test)
+0.7760952380952381
+company job degree salary_more_then_100k
+0 google sales executive bachelors 0
+1 google sales executive masters 0
+2 google business manager bachelors 1
+3 google business manager masters 1
+4 google computer programmer bachelors 0
+df=pd.read_csv('salaries.csv')
+df.head()
+inputs=df.drop('salary_more_then_100k',axis='columns')
+target=df['salary_more_then_100k']
+from sklearn.preprocessing import LabelEncoder
+le_company=LabelEncoder()
+le_job=LabelEncoder()
+le_degree=LabelEncoder()
+inputs['company_n']=le_company.fit_transform(inputs['company'])
+inputs['job_n']=le_job.fit_transform(inputs['job'])
+inputs['degree_n']=le_degree.fit_transform(inputs['degree'])
+company job degree company_n job_n degree_n
+0 google sales executive bachelors 2 2 0
+1 google sales executive masters 2 2 1
+2 google business manager bachelors 2 0 0
+3 google business manager masters 2 0 1
+4 google computer programmer bachelors 2 1 0
+5 google computer programmer masters 2 1 1
+6 abc pharma sales executive masters 0 2 1
+7 abc pharma computer programmer bachelors 0 1 0
+8 abc pharma business manager bachelors 0 0 0
+9 abc pharma business manager masters 0 0 1
+10 facebook sales executive bachelors 1 2 0
+11 facebook sales executive masters 1 2 1
+12 facebook business manager bachelors 1 0 0
+13 facebook business manager masters 1 0 1
+14 facebook computer programmer bachelors 1 1 0
+15 facebook computer programmer masters 1 1 1
+inputs
+PassengerId Name Pclass Sex Age SibSp Parch Ticket Fare Ca
+0 1
+Braund,
+Mr. Owen
+Harris
+3 male 22.0 1 0 A/5 21171 7.2500 N
+1 2
+Cumings,
+Mrs. John
+Bradley
+(Florence
+Briggs
+1 female 38.0 1 0 PC 17599 71.2833 C
+df=pd.read_csv('titanic.csv')
+df.head()
+Pclass Sex Age Fare Survived
+0 3 male 22.0 7.2500 0
+1 1 female 38.0 71.2833 1
+2 3 female 26.0 7.9250 1
+3 1 female 35.0 53.1000 1
+4 3 male 35.0 8.0500 0
+df.drop(['PassengerId','Name','SibSp','Parch','Ticket','Cabin','Embarked'],axis='columns',inplace=True)
+df.head()
+inputs=df.drop('Survived',axis='columns')
+target=df['Survived']
+target
+0 0
+1 1
+2 1
+3 1
+4 0
+ ..
+886 0
+887 1
+888 0
+889 1
+890 0
+Name: Survived, Length: 891, dtype: int64
+Pclass Sex Age Fare
+0 3 1 22.0 7.2500
+1 1 2 38.0 71.2833
+2 3 2 26.0 7.9250
+3 1 2 35.0 53.1000
+4 3 1 35.0 8.0500
+... ... ... ... ...
+886 2 1 27.0 13.0000
+887 1 2 19.0 30.0000
+888 3 2 NaN 23.4500
+889 1 1 26.0 30.0000
+890 3 1 32.0 7.7500
+891 rows × 4 columns
+inputs.Sex=inputs.Sex.map({'male':1,'female':2})
+inputs
+inputs.columns[inputs.isna().any()]
+Index(['Age'], dtype='object')
+inputs.Age=inputs.Age.fillna(inputs.Age.mean())
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+import seaborn as sns
+y_pred=model.predict(X_test)
+# Compute the confusion matrix, accuracy, precision, and recall
+cm = confusion_matrix(y_test, y_pred)
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred)
+recall = recall_score(y_test, y_pred)
+print("Confusion Matrix:")
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.show()
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+Confusion Matrix:
+Accuracy: 0.7760952380952381
+Precision: 0.56
+Recall: 0.25873844917637606
+Confusion Matrix
+0.25873844917637606
+from sklearn.metrics import precision_score,accuracy_score,recall_score,confusion_matrix
+import seaborn as sns
+y_pred=model.predict(X_test)
+cm=confusion_matrix(y_test,y_pred)
+p=precision_score(y_test,y_pred)
+a=accuracy_score(y_test,y_pred)
+r=recall_score(y_test,y_pred)
+print('Confusion Matrix')
+sns.heatmap(cm ,annot=True,fmt='d')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.show
+p
+a
+r
+Category Message
+0 ham Go until jurong point, crazy.. Available only ...
+1 ham Ok lar... Joking wif u oni...
+2 spam Free entry in 2 a wkly comp to win FA Cup fina...
+3 ham U dun say so early hor... U c already then say...
+4 ham Nah I don't think he goes to usf, he lives aro...
+df=pd.read_csv('spam.csv')
+df.head()
+Category Message spam
+0 ham Go until jurong point, crazy.. Available only ... 0
+1 ham Ok lar... Joking wif u oni... 0
+2 spam Free entry in 2 a wkly comp to win FA Cup fina... 1
+3 ham U dun say so early hor... U c already then say... 0
+4 ham Nah I don't think he goes to usf, he lives aro... 0
+df['spam']=df['Category'].apply(lambda x:1 if x=='spam' else 0)
+df.head()
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(df.Message,df.spam)
+from sklearn.feature_extraction.text import CountVectorizer
+v=CountVectorizer()
+X_train_count=v.fit_transform(X_train.values)
+X_train_count.toarray()
+array([[0, 0, 0, ..., 0, 0, 0],
+ [0, 0, 0, ..., 0, 0, 0],
+ [0, 0, 0, ..., 0, 0, 0],
+ ...,
+ [0, 0, 0, ..., 0, 0, 0],
+ [0, 0, 0, ..., 0, 0, 0],
+ [0, 0, 0, ..., 0, 0, 0]])
+▾ MultinomialNB
+MultinomialNB()
+from sklearn.naive_bayes import MultinomialNB
+model=MultinomialNB()
+model.fit(X_train_count,y_train)
+PassengerId Name Pclass Sex Age SibSp Parch Ticket Fare Ca
+0 1
+Braund,
+Mr. Owen
+Harris
+3 male 22.0 1 0 A/5 21171 7.2500 N
+1 2
+Cumings,
+Mrs. John
+Bradley
+(Florence
+Briggs
+1 female 38.0 1 0 PC 17599 71.2833 C
+df=pd.read_csv('titanic.csv')
+df.head()
+Pclass Sex Age Fare Survived
+0 3 male 22.0 7.2500 0
+1 1 female 38.0 71.2833 1
+2 3 female 26.0 7.9250 1
+3 1 female 35.0 53.1000 1
+4 3 male 35.0 8.0500 0
+df.drop(['PassengerId','Name','SibSp','Parch','Ticket','Cabin','Embarked'],axis='columns',inplace=True)
+df.head()
+inputs=df.drop('Survived',axis='columns')
+target=df['Survived']
+female male
+0 0 1
+1 1 0
+2 1 0
+3 1 0
+4 0 1
+dummies=pd.get_dummies(inputs.Sex)
+dummies.head()
+Pclass Sex Age Fare female male
+0 3 male 22.0 7.2500 0 1
+1 1 female 38.0 71.2833 1 0
+2 3 female 26.0 7.9250 1 0
+3 1 female 35.0 53.1000 1 0
+4 3 male 35.0 8.0500 0 1
+inputs=pd.concat([inputs,dummies],axis='columns')
+inputs.head()
+Pclass Age Fare female
+0 3 22.0 7.2500 0
+1 1 38.0 71.2833 1
+2 3 26.0 7.9250 1
+3 1 35.0 53.1000 1
+4 3 35.0 8.0500 0
+inputs.drop(['Sex','male'],axis='columns',inplace=True)
+inputs.head()
+inputs.columns[inputs.isna().any()]
+Index(['Age'], dtype='object')
+inputs.Age=inputs.Age.fillna(inputs.Age.mean())
+from sklearn.naive_bayes import GaussianNB
+model=GaussianNB()
+#Passengers
+Month
+1949-01-01 112
+1949-02-01 118
+1949-03-01 132
+1949-04-01 129
+1949-05-01 121
+df=pd.read_csv('AirPassengers.csv',parse_dates=['Month'],index_col='Month')
+df.head()
+plt.plot(df)
+check 0s completed at 11:42AM
+[<matplotlib.lines.Line2D at 0x7fa68dce8d00>]
+model_arima=ARIMA(data,order(2,1,2))
+results_arima=model_arima.fit()
+start
+end
+pred_arima=res.pred()
