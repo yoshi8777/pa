@@ -1,0 +1,141 @@
+import pandas as pd
+from matplotlib import pyplot as plt
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+%matplotlib inline
+satisfaction_level last_evaluation number_project average_montly_hours time_spend
+0 0.38 0.53 2 157
+1 0.80 0.86 5 262
+2 0.11 0.88 7 272
+3 0.72 0.87 5 223
+4 0.37 0.52 2 159
+df = pd.read_csv("HR_comma_sep (2).csv")
+df.head()
+left = df[df.left==1]
+left.shape
+(3571, 10)
+retained = df[df.left==0]
+retained.shape
+(11428, 10)
+satisfaction_level last_evaluation number_project average_montly_hours t
+left
+0 0.666810 0.715473 3.786664 199.060203
+1 0.440098 0.718113 3.855503 207.419210
+df.groupby('left').mean()
+pd.crosstab(df.salary,df.left).plot(kind='bar')
+<AxesSubplot:xlabel='salary'>
+<AxesSubplot:xlabel='Department'>
+pd.crosstab(df.Department,df.left).plot(kind='bar')
+satisfaction_level average_montly_hours promotion_last_5years salary
+0 0.38 157 0 low
+1 0.80 262 0 medium
+2 0.11 272 0 medium
+3 0.72 223 0 low
+4 0.37 159 0 low
+subdf = df[['satisfaction_level','average_montly_hours','promotion_last_5years','salary']]
+subdf.head()
+salary_dummies = pd.get_dummies(subdf.salary, prefix="salary")
+df_with_dummies = pd.concat([subdf,salary_dummies],axis='columns')
+satisfaction_level average_montly_hours promotion_last_5years salary salary
+0 0.38 157 0 low
+1 0.80 262 0 medium
+2 0.11 272 0 medium
+3 0.72 223 0 low
+4 0.37 159 0 low
+df_with_dummies.head()
+df_with_dummies.drop('salary',axis='columns',inplace=True)
+df_with_dummies.head()
+satisfaction_level average_montly_hours promotion_last_5years salary_high s
+0 0.38 157 0 0
+1 0.80 262 0 0
+2 0.11 272 0 0
+3 0.72 223 0 0
+4 0.37 159 0 0
+satisfaction_level average_montly_hours promotion_last_5years salary_high s
+0 0.38 157 0 0
+1 0.80 262 0 0
+2 0.11 272 0 0
+3 0.72 223 0 0
+4 0.37 159 0 0
+X = df_with_dummies
+X.head()
+y = df.left
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X,y,train_size=0.3)
+from sklearn.linear_model import LogisticRegression
+#model = LogisticRegression()
+model = MultinomialNB()
+model.fit(X_train, y_train)
+MultinomialNB()
+y_pred=model.predict(X_test)
+y_pred
+array([0, 0, 0, ..., 0, 0, 0], dtype=int64)
+model.score(X_test,y_test)
+0.7596190476190476
+import pandas as pd
+import seaborn as sns
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
+from tabulate import tabulate
+# Compute the confusion matrix, accuracy, precision, and recall
+cm = confusion_matrix(y_test, y_pred)
+accuracy = accuracy_score(y_test, y_pred)
+precision = precision_score(y_test, y_pred,zero_division=1)
+from sklearn.metrics import classification_report
+report = classification_report(y_test, y_pred, zero_division=1)
+print(report)
+recall = recall_score(y_test, y_pred,zero_division=1)
+# Format and print the confusion matrix
+confusion_matrix_table = pd.DataFrame(cm, columns=['Predicted No Quit', 'Predicted Quit'],
+index=['Actual No Quit', 'Actual Quit'])
+print("Confusion Matrix:")
+print(confusion_matrix_table)
+# Print accuracy, precision, and recall
+print("\nAccuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+# Predictions for new data
+new_data = pd.DataFrame({
+'satisfaction_level': [0.65, 0.45],
+'average_montly_hours': [180, 140],
+'promotion_last_5years': [0, 0],
+'salary_high':[1,0],
+'salary_low':[1,0],
+'salary_medium':[1,0]
+})
+# Make predictions on the new data
+new_data['Prediction'] = model.predict(new_data)
+# Convert the prediction to text
+new_data['Prediction'] = new_data['Prediction'].map({0: 'Retain', 1: 'Quit'})
+# Print the table of predictions
+headers = [ "Satisfaction Level", "Average Monthly Hours","Promotion in Last 5 Years", "salary_high","salary_low","salary_medium"]
+print("\nPredictions for new data:")
+print(tabulate(new_data.values, headers=headers, tablefmt="pretty"))
+ precision recall f1-score support
+ 0 0.76 1.00 0.86 7976
+ 1 1.00 0.00 0.00 2524
+ accuracy 0.76 10500
+ macro avg 0.88 0.50 0.43 10500
+weighted avg 0.82 0.76 0.66 10500
+Confusion Matrix:
+ Predicted No Quit Predicted Quit
+Actual No Quit 7976 0
+Actual Quit 2524 0
+Accuracy: 0.7596190476190476
+Precision: 1.0
+Recall: 0.0
+Predictions for new data:
++------+--------------------+-----------------------+---------------------------+-------------+------------+---------------+
+| | Satisfaction Level | Average Monthly Hours | Promotion in Last 5 Years | salary_high | salary_low | salary_medium |
++------+--------------------+-----------------------+---------------------------+-------------+------------+---------------+
+| 0.65 | 180 | 0 | 1 | 1 | 1 | Retain |
+| 0.45 | 140 | 0 | 0 | 0 | 0 | Retain |
++------+--------------------+-----------------------+---------------------------+-------------+------------+---------------+
+
+
