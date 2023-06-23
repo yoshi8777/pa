@@ -1,0 +1,93 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+CPU
+Total
+CPU Package
+Temperature Memory Used
+Memory Temperature Used
+Space
+0 3.528023 40 48.994663 1.918564 35 92.11886
+1 5.060095 40 48.971184 1.917644 35 92.11886
+2 10.937500 40 49.110200 1.923088 35 92.11886
+3 5.078125 40 49.125004 1.923668 35 92.11886
+4 2.343750 40 49.137670 1.924164 35 92.11886
+df=pd.read_csv('system temperature Dataset.csv')
+df.head()
+X1=df.drop('CPU Package Temperature',axis='columns')
+Y=df['CPU Package Temperature'].values
+Y
+array([40, 40, 40, ..., 48, 48, 48])
+from sklearn.model_selection import train_test_split
+# Split the data into training and testing sets
+X_train, X_test, Y_train, Y_test = train_test_split(X1, Y, test_size=0.2, random_state=42)
+▾ LinearRegression
+LinearRegression()
+#polynomal regression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+polyreg = PolynomialFeatures(degree = 4) # Transform X into X_Poly which contains X, X squared, X cubed, etc
+X_Poly = polyreg.fit_transform(X1)
+regressor1 = LinearRegression() # Fit X_Poly in our Linear Regression model
+regressor1.fit(X_Poly,Y)
+▾ LinearRegression
+LinearRegression()
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X1,Y)
+X1.shape
+(2190, 5)
+Y.shape
+(2190,)
+X1_reshaped = X1.reshape(-1)
+Y_reshaped = Y.reshape(-1)
+# Visualize Linear Regression results
+plt.scatter(X1_reshaped, Y_reshaped, color='red')
+plt.plot(X1_reshaped, linear_model.predict(X1_reshaped.reshape(-1, 1)), color='blue')
+plt.title('Linear Regression')
+plt.xlabel('STORAGE TEMP')
+plt.ylabel('CPU TEMP')
+plt.show()
+---------------------------------------------------------------------------
+AttributeError Traceback (most recent call last)
+<ipython-input-36-7dc1ed9c3273> in <cell line: 1>()
+----> 1 X1_reshaped = X1.reshape(-1)
+ 2 Y_reshaped = Y.reshape(-1)
+ 3
+ 4 # Visualize Linear Regression results
+ 5 plt.scatter(X1_reshaped, Y_reshaped, color='red')
+/usr/local/lib/python3.10/dist-packages/pandas/core/generic.py in __getattr__(self,
+name)
+ 5900 ):
+ 5901 return self[name]
+-> 5902 return object.__getattribute__(self, name)
+ 5903
+ 5904 def __setattr__(self, name: str, value) -> None:
+AttributeError: 'DataFrame' object has no attribute 'reshape'
+SEARCH STACK OVERFLOW
+---------------------------------------------------------------------------
+ValueError Traceback (most recent call last)
+<ipython-input-17-f11366e1a829> in <cell line: 2>()
+ 1 # Visualising the Polynomial Regression results
+----> 2 plt.scatter(X1, Y, color = 'red')
+ 3 plt.plot(X1, regressor1.predict(polyreg.fit_transform(X1)), color = 'blue')
+ 4 plt.title('Polynomial Regression')
+ 5 plt.xlabel('STOREGE TEMP')
+2 frames
+/usr/local/lib/python3.10/dist-packages/matplotlib/axes/_axes.py in scatter(self, x, y,
+s, c, marker, cmap, norm, vmin, vmax, alpha, linewidths, edgecolors, plotnonfinite,
+**kwargs)
+ 4582 y = np.ma.ravel(y)
+ 4583 if x.size != y.size:
+-> 4584 raise ValueError("x and y must be the same size")
+ 4585
+ 4586 if s is None:
+ValueError: x and y must be the same size
+SEARCH STACK OVERFLOW
+# Visualising the Polynomial Regression results
+plt.scatter(X1, Y, color = 'red')
+plt.plot(X1, regressor1.predict(polyreg.fit_transform(X1)), color = 'blue')
+plt.title('Polynomial Regression')
+plt.xlabel('STOREGE TEMP')
+plt.ylabel('CPU TEMP')
+plt.show()
